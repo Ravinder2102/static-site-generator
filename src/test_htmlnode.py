@@ -2,6 +2,7 @@ import unittest
 
 from htmlnode import HTMLNode
 from htmlnode import LeafNode
+from htmlnode import ParentNode
 
 class TestHTMLNode(unittest.TestCase):
     def test_eq(self):
@@ -42,3 +43,35 @@ class TestHTMLNode(unittest.TestCase):
     def test_leaf_to_html_raw_text(self):
         node = LeafNode(None,"this is raw text")
         self.assertEqual(node.to_html(), "this is raw text")
+
+    #parent node tests
+    def test_to_html_with_children(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+
+    def test_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span><b>grandchild</b></span></div>",
+            )
+    
+    def test_to_html_no_children(self):
+        with self.assertRaises(ValueError):
+            LeafNode("p", None).to_html()
+
+    def test_to_html_many_children(self):
+        node = ParentNode(
+            "div",
+            [
+                LeafNode("i", "italic"),
+                LeafNode("b", "bold"),
+                LeafNode(None, "Normal"),
+                LeafNode("b", "bold")
+            ],
+        )
+        self.assertEqual(node.to_html(),
+                         "<div><i>italic</i><b>bold</b>Normal<b>bold</b></div>")
