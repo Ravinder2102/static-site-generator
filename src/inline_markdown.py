@@ -32,3 +32,61 @@ def extract_markdown_images(text):
 def extract_markdown_links(text):
      link_anchor_url = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
      return link_anchor_url
+
+def split_nodes_image(old_nodes:list[TextNode]) -> list[TextNode]:
+    new_nodes = []
+    for old_node in old_nodes:
+        if old_node.text_type != TextType.TEXT:
+            new_nodes.append(old_node)
+            continue
+
+        images_found = extract_markdown_images(old_node.text)
+        if not images_found:
+            new_nodes.append(old_node)
+            continue
+        else:
+            remaining_text = old_node.text
+            for image in images_found:
+                alt = image[0]
+                url = image[1]
+                sections = remaining_text.split(f"![{alt}]({url})", 1)
+                if len(sections) != 2:
+                    raise ValueError("invalid markdown, image section not closed")
+                if sections[0]:
+                    new_nodes.append(TextNode(sections[0], TextType.TEXT))
+                new_nodes.append(TextNode(alt, TextType.IMAGE, url))
+                remaining_text = sections[1]
+
+            if remaining_text:
+                new_nodes.append(TextNode(remaining_text, TextType.TEXT))
+    return new_nodes
+                  
+
+
+def split_nodes_link(old_nodes:list[TextNode]) -> list[TextNode]:
+    new_nodes = []
+    for old_node in old_nodes:
+        if old_node.text_type != TextType.TEXT:
+            new_nodes.append(old_node)
+            continue
+
+        links_found = extract_markdown_links(old_node.text)
+        if not links_found:
+            new_nodes.append(old_node)
+            continue
+        else:
+            remaining_text = old_node.text
+            for link in links_found:
+                link_text = link[0]
+                url = link[1]
+                sections = remaining_text.split(f"[{link_text}]({url})", 1)
+                if len(sections) != 2:
+                    raise ValueError("invalid markdown, link section not closed")
+                if sections[0]:
+                    new_nodes.append(TextNode(sections[0], TextType.TEXT))
+                new_nodes.append(TextNode(link_text, TextType.LINK, url))
+                remaining_text = sections[1]
+
+            if remaining_text:
+                new_nodes.append(TextNode(remaining_text, TextType.TEXT))
+    return new_nodes
