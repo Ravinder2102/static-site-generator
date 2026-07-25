@@ -1,6 +1,10 @@
-from textnode import TextNode, TextType
+from copy_static import copy_static, delete_destination
+
+dir_path_static = "./static"
+dir_path_public = "./public"
+
 def main():
-    node = TextNode("This is some anchor text", TextType.LINK, "https://www.boot.dev")
-    print(node)
+    delete_destination(dir_path_public)
+    copy_static(dir_path_static, dir_path_public)
 
 main()
