@@ -1,5 +1,5 @@
 import unittest
-from markdown_to_html_node import markdown_to_html_node
+from markdown_to_html_node import markdown_to_html_node, extract_title
 class TestMarkdownToHTMLNode(unittest.TestCase):
     def test_paragraphs(self):
         md = """
@@ -81,6 +81,25 @@ some text
             html,
             "<div><blockquote>This is some quote and this is the next part of that quote</blockquote></div>"
         )
+# Title extraction tests
+    def test_extract_title(self):
+        md = """
+# Title
+
+"""
+        title = extract_title(md)
+        self.assertEqual(
+            title,
+            "Title"
+        )
+
+    def test_no_title(self):
+        md = """
+## Hello
+
+"""
+        with self.assertRaises(Exception):
+            extract_title(md)
 
 if __name__ == "__main__":
     unittest.main()
