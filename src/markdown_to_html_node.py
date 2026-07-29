@@ -26,6 +26,14 @@ def markdown_to_html_node(markdown: str) -> ParentNode:
     root_node = ParentNode("div", html_nodes)
     return root_node
 
+# Extract title from md
+def extract_title(markdown: str) -> str:
+    lines = markdown.split("\n")
+    for line in lines:
+        if line.startswith("# "):
+            return line[2:].strip()
+    raise Exception("No h1 Header found") 
+
 def text_to_children(text: str) -> list[HTMLNode]:
     text_nodes = text_to_textnodes(text)
     children = []
