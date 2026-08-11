@@ -9,7 +9,7 @@ content_path = "./content"
 template_path = "./template.html"
 
 def main():
-    base_path = argv[1] if len(argv) < 1 else "/"
+    base_path = argv[1] if len(argv) > 1 else "/"
     delete_destination(dir_path_public)
     copy_static(dir_path_static, dir_path_public)
     print("Generating content...")
